@@ -1,0 +1,154 @@
+# Biblioteca de materiales para el modelo termico de olla de acero.
+#
+# ATENCION - ESTADO DE LOS DATOS
+# Todos los valores de esta biblioteca son valores TIPICOS DE LITERATURA para
+# la familia de material indicada, no datos del refractario concreto instalado
+# en la olla del usuario. Sirven para construir y ejercitar el modelo y para
+# obtener ordenes de magnitud defendibles. Antes de usar el resultado para
+# fijar un tiempo de precalentamiento de operacion hay que sustituirlos por las
+# fichas tecnicas del proveedor (ver docs/propiedades_materiales.md).
+#
+# Unidades: density [kg/m3], conductivity [W/mK], specific_heat [J/kgK],
+# temperaturas de las tablas en grados Celsius.
+
+materials:
+
+  # --------------------------------------------------------------- refractario
+  alumina_spinel_castable:
+    density: 3050
+    conductivity:
+      temperatures_C: [100, 400, 700, 1000, 1300, 1600]
+      values:         [2.60, 2.20, 2.00, 1.95, 2.05, 2.20]
+    specific_heat:
+      temperatures_C: [100, 400, 700, 1000, 1300, 1600]
+      values:         [900, 1050, 1150, 1220, 1270, 1300]
+    emissivity: 0.85
+    max_service_C: 1750
+    source: >-
+      Rango tipico para hormigones (castables) de alumina-espinela de baja
+      cemento usados como revestimiento de trabajo de olla; consistente con los
+      valores empleados en modelos termicos de olla publicados
+      (Volkova & Janke, ISIJ Int., modelado de distribucion de temperatura en
+      revestimientos de olla; Zimmer et al., transferencia de calor en olla de
+      acería, J. Braz. Soc. Mech. Sci. Eng. 2008).
+    notes: >-
+      La k pasa por un minimo cerca de 1000 C y vuelve a subir por el aporte
+      radiativo dentro de la porosidad. Es el material por defecto del
+      revestimiento de trabajo.
+
+  mgo_c_brick:
+    density: 2950
+    conductivity:
+      temperatures_C: [100, 400, 700, 1000, 1300, 1600]
+      values:         [11.0, 8.5, 7.0, 6.2, 5.8, 5.6]
+    specific_heat:
+      temperatures_C: [100, 400, 700, 1000, 1300, 1600]
+      values:         [850, 1050, 1180, 1250, 1290, 1320]
+    emissivity: 0.90
+    max_service_C: 1700
+    source: >-
+      Ladrillo de magnesia-carbono (10-14 % C) para linea de escoria y pared.
+      Valores tipicos de catalogo de refractarios; la alta k proviene del
+      grafito.
+    notes: >-
+      Conductividad 3-5 veces mayor que un castable de alumina: una olla con
+      MgO-C se enfria y se calienta mucho mas rapido. Es el caso que mas
+      castiga el tiempo de precalentamiento.
+
+  high_alumina_brick_70:
+    density: 2600
+    conductivity:
+      temperatures_C: [100, 400, 700, 1000, 1300]
+      values:         [1.70, 1.62, 1.58, 1.60, 1.68]
+    specific_heat:
+      temperatures_C: [100, 400, 700, 1000, 1300]
+      values:         [880, 1030, 1120, 1180, 1220]
+    emissivity: 0.80
+    max_service_C: 1500
+    source: >-
+      Ladrillo de alta alumina (~70 % Al2O3) empleado como revestimiento de
+      seguridad / permanente. Valores tipicos de literatura de refractarios.
+    notes: Capa permanente por defecto.
+
+  andalusite_brick:
+    density: 2450
+    conductivity:
+      temperatures_C: [100, 400, 700, 1000, 1300]
+      values:         [1.45, 1.42, 1.45, 1.52, 1.60]
+    specific_heat:
+      temperatures_C: [100, 400, 700, 1000, 1300]
+      values:         [870, 1020, 1110, 1170, 1210]
+    emissivity: 0.80
+    max_service_C: 1450
+    source: Ladrillo de andalucita como revestimiento de seguridad alternativo.
+    notes: Alternativa de menor k al ladrillo de alta alumina.
+
+  # ---------------------------------------------------------------- aislantes
+  microporous_board:
+    density: 320
+    conductivity:
+      temperatures_C: [100, 300, 600, 900]
+      values:         [0.023, 0.026, 0.033, 0.045]
+    specific_heat:
+      temperatures_C: [100, 300, 600, 900]
+      values:         [900, 1000, 1060, 1100]
+    emissivity: 0.85
+    max_service_C: 1000
+    source: >-
+      Placa microporosa de silice (tipo panel aislante de alto rendimiento).
+      Valores tipicos de ficha tecnica.
+    notes: >-
+      Es la capa que domina la temperatura de carcasa. Si el modelo predice
+      carcasa muy fria comparada con medicion, esta capa (o su degradacion en
+      servicio) es el primer sospechoso.
+
+  ceramic_fiber_blanket:
+    density: 128
+    conductivity:
+      temperatures_C: [200, 400, 600, 800, 1000]
+      values:         [0.06, 0.10, 0.16, 0.24, 0.34]
+    specific_heat:
+      temperatures_C: [200, 400, 600, 800, 1000]
+      values:         [900, 1000, 1070, 1110, 1130]
+    emissivity: 0.85
+    max_service_C: 1260
+    source: Manta de fibra ceramica 128 kg/m3, valores tipicos de ficha tecnica.
+    notes: Aislante alternativo; k crece fuerte con T por radiacion interna.
+
+  # ----------------------------------------------------------------- carcasa
+  carbon_steel_shell:
+    density: 7850
+    conductivity:
+      temperatures_C: [20, 200, 400, 600, 800]
+      values:         [53.3, 47.3, 40.7, 34.0, 27.3]
+    specific_heat:
+      temperatures_C: [20, 200, 400, 600, 800]
+      values:         [440, 530, 606, 760, 803]
+    emissivity: 0.80
+    max_service_C: 500
+    source: >-
+      Acero al carbono estructural. k(T) y cp(T) segun las expresiones de
+      EN 1993-1-2 (Eurocodigo 3, parte 1-2) para acero al carbono.
+    notes: >-
+      Se omite deliberadamente el pico de cp en la transformacion a ~735 C:
+      la carcasa de una olla en servicio nunca llega ahi (250-400 C tipico) y
+      el pico introduce una no linealidad fuerte sin valor para este problema.
+
+  # -------------------------------------------------- materiales de referencia
+  liquid_steel:
+    density: 7000
+    conductivity: {value: 30.0}
+    specific_heat: {value: 820.0}
+    emissivity: 0.40
+    source: Acero liquido a ~1600 C, valores tipicos de literatura siderurgica.
+    notes: >-
+      Solo para modelos agrupados del bano. La emisividad 0.40 es de acero
+      liquido desnudo; con capa de escoria usar ~0.85 (ver slag_layer).
+
+  slag_layer:
+    density: 2600
+    conductivity: {value: 1.5}
+    specific_heat: {value: 1200.0}
+    emissivity: 0.85
+    source: Escoria de olla, valores tipicos de literatura siderurgica.
+    notes: Solo para modelos agrupados de la superficie del bano.

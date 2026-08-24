@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+build/
+dist/
+.ipynb_checkpoints/
+
+# Resultados de corridas: se versionan los reportes, no los binarios pesados
+results/**/*.npz
+*.DS_Store

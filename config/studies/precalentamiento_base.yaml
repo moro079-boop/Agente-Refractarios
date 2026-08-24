@@ -1,0 +1,83 @@
+# ESTUDIO BASE: cuanto precalentador hace falta segun cuanto haya esperado la olla.
+#
+# Responde la pregunta del proyecto: tras vaciar el acero, la olla se enfria sin
+# aporte energetico durante un tiempo variable; el modelo dice cuanto tiempo de
+# precalentador necesita para que el revestimiento vuelva a estar en condiciones
+# de recibir colada.
+
+study:
+  name: precalentamiento_base
+  description: >-
+    Mapa espera-vacia -> tiempo de precalentador para la olla de 150 t con
+    revestimiento de castable de alumina-espinela, partiendo del estado ciclico
+    periodico de la olla en rotacion.
+
+  ladle: ../olla_acero_150t.yaml
+  section: wall
+
+  ambient:
+    temperature_C: 35          # temperatura de nave
+    shell_emissivity: 0.80     # carcasa de acero oxidada
+    wind_speed: 0.0            # [m/s] corriente de aire sobre la carcasa
+    orientation: vertical
+
+  # Estado de partida: el que deja el ciclo anterior de la olla en produccion.
+  # Es el arranque correcto. 'steady_with_steel' sobreestima el calor almacenado
+  # y 'uniform' lo subestima; ambos estan disponibles para acotar.
+  initial_state:
+    mode: cyclic
+    uniform_C: 150
+    max_cycles: 30
+    tolerance_K: 1.0
+    cycle:
+      - {name: llenado_y_retencion, minutes: 75, type: liquid_steel, steel_C: 1620, h: 1500, cooling_rate_C_per_min: 0.4}
+      - {name: espera_vacia,        minutes: 45, type: empty_open}
+      - {name: precalentamiento,    minutes: 60, type: preheater, gas_temperature_C: 1300, burner_power_MW: 4.0}
+
+  # Escenarios de enfriamiento SIN aporte energetico.
+  cooling_scenarios:
+    - name: sin_tapa
+      type: empty_open
+      description: Olla vacia a la intemperie de nave, boca abierta.
+    - name: con_tapa
+      type: empty_lid
+      lid_factor: 0.35
+      description: Olla vacia con tapa apoyada, sellado imperfecto.
+    - name: con_tapa_ajustada
+      type: empty_lid
+      lid_factor: 0.15
+      description: Tapa bien ajustada y precalentada.
+
+  # Cubre desde un cambio rapido hasta una olla que paso la noche parada.
+  # 1440 min = 24 h: practicamente olla fria, el caso que dispara el precalentador.
+  cooling_times_min: [0, 15, 30, 60, 90, 120, 180, 240, 360, 480, 720, 1440]
+
+  preheater:
+    type: preheater
+    # POTENCIA FINITA (modelo de horno bien agitado). Es la diferencia entre un
+    # resultado util y uno sin sentido: con temperatura de gas impuesta el
+    # quemador tiene potencia infinita y los tiempos salen 5-10 veces cortos.
+    burner_power_MW: 4.0       # potencia termica de entrada del quemador
+    adiabatic_flame_C: 1900    # llama adiabatica con el exceso de aire de trabajo
+    gas_temperature_C: 1300    # techo de control (limita la T de gases)
+    h_conv: 30                 # [W/m2K] conveccion del chorro sobre la cara caliente
+    eps_eff: 0.70              # emisividad efectiva gases + re-radiacion de la tapa
+    # heated_area: 46.0        # por defecto: area interior calculada de la geometria
+    # ramp_C_per_h: 150        # rampa controlada de calentamiento (anti-spalling)
+
+  criterion:
+    # El criterio del proyecto es la CARA caliente >= 1100 C. Se anade un
+    # segundo criterio de masa termica: la media de los primeros 50 mm. Sin el,
+    # un quemador agresivo "cumple" en minutos dejando una piel caliente sobre
+    # refractario frio, que se apaga en cuanto entra el acero.
+    # Ver config/studies/criterio_solo_cara.yaml para el efecto de quitarlo.
+    hot_face_C: 1100
+    depth_mean_C: 1000
+    depth_mm: 50
+
+  max_preheat_h: 24
+
+  numerics:
+    dt: 30
+    dt_initial: 0.5
+    dt_growth: 1.3
